@@ -1,2 +1,0 @@
-cmdhistory=["(+ 1 2)" "(welcome \\"daniel\\")" "(defn welcome\\r\\n  \\"Welcome To The Clojure Age, \\"\\r\\n  [x,y]\\r\\n  (println x y))" "(welcome \\"daniel\\")" "(foo)" "(defn foo\\r\\n  \\"I don't do a whole lot.\\"\\r\\n  [x]\\r\\n  (println x \\"Hello, World\!\\"))" "(foo \\"test\\")" "foo" "(defn welcome01234\\r\\n  [x,y]\\r\\n  (println x y))\\r\\n\\r\\n(defn welcome\\r\\n  [x]\\r\\n  (welcome01234 \\"Welcome To The Clojure Age, \\" x))" "(welcome daniela)" "(welcome \\"daniela\\")"]
-eclipse.preferences.version=1
