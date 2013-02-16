@@ -17,12 +17,6 @@
 (dotimes [n PopulationSize]
   (
 		(def Person [])
-		(dotimes [n 15] 
-		  (def person 
-		    (conj person 
-		          (rand-nth abc)
-		    )
-		  )
-		)
+		(dotimes [n 15](def person (conj person (rand-nth abc))))
   )
 )
