@@ -1,17 +1,21 @@
 (ns GeneticJVM.core)
 
-;Daniel's Update 18/02
-;NOTE: I used different approach: instead of using a vector and loop i used recursive and cond and by so recieved the needed action - CONJing person in population and char in persons!!
+;Fooling around
+(defn welcome
+  [x]
+  (println "Welcome To The Clojure Age, " x))
 
-(def abc ["a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z" "!"])
+;Real job:
+(def target "i love clojure!") 
+(def abc [\a \b \c \d \e \f \g \h \i \j \k \l \m \n \o \p \q \r \s \t \u \v \w \x \y \z \!])
 
-;is-person-space? returns true when i equals to 1 or 6 which are the matching indices of the spaces in "I Love Clojure"
+;is-person-space? returns true when i equals to 1 or 6 which are the matching indices of the spaces in "i love clojure!"
 (defn is-person-space? [i] (or (= i 1) (= i 6)))
 
 (defn getPersonChar
   [i]
   (cond
-  (is-person-space? i) " "
+  (is-person-space? i) \ ;space
   :else (rand-nth abc) 
   )
 )
@@ -27,13 +31,21 @@
     )
   )
 
+;calc the fitness of a person,returns map of the person and his fitness
+(def fitness 0)
+(defn calc_fitness [person target] 
+(letfn [(fit [fitness p t]
+         (if (empty? (rest p) )
+           {person fitness}
+           (recur (+ fitness (Math/abs (- (int (first p)) (int(first t))))) (rest p) (rest t))))]
+  (fit 0 person target))
+  )  
+
 ;_InitPopulation returns a random intial population vector
 (defn _InitPopulation [i pop]
+ ;(println "i: " i "a" (_InitPerson 0 []))
   (cond
     (= i PopulationSize) pop
-    :else (cons {(_InitPerson 0 []) -1} (_InitPopulation (+ i 1) pop))
-    ;we evaluate each person with -1 meanwhile... later it will have its fitness
-    )
+    :else (merge (calc_fitness (_InitPerson 0 []) target) (_InitPopulation (+ i 1) pop)))
   )
-
 (def InitPopulation (_InitPopulation 0 {}))
