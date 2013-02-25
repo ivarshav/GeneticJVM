@@ -1,6 +1,5 @@
 (ns GeneticJVM.core)
 
-;; WE HAVE RANDOM TARGET!
 (def target) ;because the functions use this definition, we define it in Main
 (def PersonLength) ;target length ;because the functions use this definition, we define it in Main
 (def PopulationSize 2048)
@@ -10,27 +9,22 @@
   (char (+ (rand-int 90) 32)))
 
 ;_InitPerson returns a random initial person vector
-(defn _InitPerson [i]
-  (cond
-    (= i PersonLength) [] 
-    :else  (vec (cons (getPersonChar ) (_InitPerson (inc i) ))))
+(defn lazy-seq-intper [] (cons (getPersonChar) (lazy-seq (lazy-seq-intper)))) 
+(defn _InitPerson [] 
+  (vec (take PersonLength (lazy-seq-intper))) 
   )
   
 ;calc the fitness of a person,returns map of the person and his fitness
-(def fitness 0)
+(defn lazy-seq-fit [person target] (cons (Math/abs (- (int (first person)) (int (first target)))) (lazy-seq (lazy-seq-fit (rest person) (rest target)))))
 (defn calc_fitness [person target] 
-(letfn [(fit [fitness p t]
-         (if (empty? p )
-           {person fitness}  
-           (recur (+ fitness (Math/abs (- (int (first p)) (int(first t))))) (rest p) (rest t))))]
-  (fit 0 person target))
+  {person (apply + (take PersonLength (lazy-seq-fit person target)))} 
   )  
 
 ;_InitPopulation returns a random intial population vector
 (defn _InitPopulation [i]
   (cond
     (= i PopulationSize) {}
-    :else (merge (calc_fitness (_InitPerson 0 ) target) (_InitPopulation (+ i 1))))
+    :else (merge (calc_fitness (_InitPerson) target) (_InitPopulation (inc i))))
   )
 
 ;sort the population map by fitness value in a form of a map
@@ -50,13 +44,13 @@
 
 ;mutation- change a letter in a person
 (defn MutationPerson [person]
-   (def rnum (rand-int PersonLength)) ;(println "mutaion:" rnum person)
+   (def rnum (rand-int PersonLength))
   (assoc person rnum (getPersonChar ) )
   )
 
 ;cross-over between two parents
 (defn cross-over [parent1 parent2]
-   (def rnum (+ 1 (rand-int (- PersonLength 1))))  
+   (def rnum (rand-int (+ PersonLength 1)))  
    (vec (flatten (cons (take rnum parent1) (take-last (- PersonLength rnum) parent2))))   
    )
 
@@ -68,9 +62,10 @@
 (def RandMax 40)
 (def GA_Mutation (* MutationRate RandMax))
 
+(def cross-Mutation (comp MutationPerson cross-over))
 ;returns a map of one child and his fitness
 (defn Mate [parent1 parent2]
-  (calc_fitness (if (< (rand-int RandMax) GA_Mutation) ((comp MutationPerson cross-over) parent1 parent2)  
+  (calc_fitness (if (< (rand-int RandMax) GA_Mutation) (cross-Mutation parent1 parent2)  
     (cross-over parent1 parent2)) target) ;getting new infant +mutaion if needed , in a form of key+fitness value
   )
 
@@ -89,12 +84,14 @@
   (sort_by_fitness (merge Elite restMate))
   )
 
-(defn calc_avgfitness [population] ; calculate the avarage fitness of a population
+;calculate the avarage fitness of a population
+(defn calc_avgfitness [population] 
   (double (/ (apply + (vals population)) (count population))))
 
 (defn subx [x] (fn [y] (Math/pow (- y x) 2)))
 
-(defn calc_deviation [population]; calculate the deviation of a population
+;calculate the deviation of a population
+(defn calc_deviation [population]
   (def avg_fit (calc_avgfitness population)) 
   (Math/sqrt (/ (apply + (pmap (subx avg_fit) (vals population))) (count population))))
 
@@ -106,10 +103,8 @@
   (def InitPopulation (_InitPopulation 0))
   (def Sorted_Initpop (sort_by_fitness InitPopulation))
   (loop [i 0 population Sorted_Initpop] 
-  (println "Iteration" i "best person & fitness:")   ;(print_best[(first population)]
-  (println \"(apply str (first (keys population)))\" (first (vals population)))
-  (println "Deviation:" (calc_deviation population) "avg:" avg_fit) 
-  (if  (= (first (vals population)) 0) (println "we got it!   " (apply str (first (keys population))))  ;print "i love clojure!"
+  (println "Iteration" i "best:" (first population) " deviation:" (calc_deviation population) " avg fitness:" avg_fit)   ;print best+ deviation
+  (if  (= (first (vals population)) 0) (println "we got it!   " (apply str (first (keys population))))
   (if  (= i GA_MaxIterations) (println "sorry..") ;didnt get our target
   (recur (inc i) (Mate2 population)))))
   )
