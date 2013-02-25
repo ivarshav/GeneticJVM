@@ -2,8 +2,8 @@
 
 ;; WE HAVE RANDOM TARGET!
 (def target) ;because the functions use this definition, we define it in Main
-(def PersonLength) ;target length ;because the functions use this definition, we define it in Main
-(def PopulationSize 3000)
+;(def PersonLength) ;target length ;because the functions use this definition, we define it in Main
+(def PopulationSize 2048)
 (def GA_MaxIterations 16384) ;the number of generations
 
 (defn getPersonChar []  ;rand char between \space to \z
@@ -56,7 +56,7 @@
 
 ;cross-over between two parents
 (defn cross-over [parent1 parent2]
-   (def rnum (rand-int PersonLength))  
+   (def rnum (+ 1 (rand-int (- PersonLength 1))))  
    (vec (flatten (cons (take rnum parent1) (take-last (- PersonLength rnum) parent2))))   
    )
 
@@ -79,7 +79,7 @@
   (letfn [(select [i person]
                   (if (= i rest_elitism_size) person 
                     (recur (inc i) (vec(cons (Rand_Parent population) person)))))]
-  (select 0 (vector (Rand_Parent population))))
+  (select 1 (vector (Rand_Parent population))))
   ) 
 
 ;creates the new population (elitism+ the mate of the rest)
@@ -89,16 +89,27 @@
   (sort_by_fitness (merge Elite restMate))
   )
 
+(defn calc_avgfitness [population] ; calculate the avarage fitness of a population
+  (double (/ (apply + (vals population)) (count population))))
+
+(defn subx [x] (fn [y] (Math/pow (- y x) 2)))
+
+(defn calc_deviation [population]; calculate the deviation of a population
+  (def avg_fit (calc_avgfitness population)) 
+  (Math/sqrt (/ (apply + (pmap (subx avg_fit) (vals population))) (count population))))
+
+
 (defn Main [input]
   (def target input)
   (def PersonLength (count target))
   (println "Creating Initial Population")
   (def InitPopulation (_InitPopulation 0))
   (def Sorted_Initpop (sort_by_fitness InitPopulation))
-  ;print new population as strings   NewPopulation -not sure if need
   (loop [i 0 population Sorted_Initpop] 
-  (println "Iteration" i "best: " (first population))   ;(print_best[(first population)]
-  (if  (= (first (vals population)) 0) (println "we got it!   " (first (keys population)))  ;print "i love clojure!"
+  (println "Iteration" i "best person & fitness:")   ;(print_best[(first population)]
+  (println \"(apply str (first (keys population)))\" (first (vals population)))
+  (println "Deviation:" (calc_deviation population) "avg:" avg_fit) 
+  (if  (= (first (vals population)) 0) (println "we got it!   " (apply str (first (keys population))))  ;print "i love clojure!"
   (if  (= i GA_MaxIterations) (println "sorry..") ;didnt get our target
   (recur (inc i) (Mate2 population)))))
   )
