@@ -7,7 +7,7 @@ The Project Uses Genetic Algorithm the get from random strings (initial populati
 
 Load Src in REPL and Type:
 (Main "YourString")
-where "YourString" is the target string (consisting of all the ascii characters between " "-"z")
+where "YourString" is the target string (consisting of all the ascii characters between "\Space"-"z")
 
 ## License
 
