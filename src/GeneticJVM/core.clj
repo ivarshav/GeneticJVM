@@ -2,7 +2,7 @@
 
 ;; WE HAVE RANDOM TARGET!
 (def target) ;because the functions use this definition, we define it in Main
-;(def PersonLength) ;target length ;because the functions use this definition, we define it in Main
+(def PersonLength) ;target length ;because the functions use this definition, we define it in Main
 (def PopulationSize 2048)
 (def GA_MaxIterations 16384) ;the number of generations
 
